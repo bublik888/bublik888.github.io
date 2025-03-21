@@ -393,10 +393,6 @@
         .info-value {
             font-weight: 500;
         }
-        
-        .privacy-checkbox {
-            margin-top: 15px;
-        }
 
         /* Адаптивность */
         @media (max-width: 768px) {
@@ -475,12 +471,6 @@
                         <span class="checkmark"></span>
                         Я согласен с условиями договора
                     </label>
-                    
-                    <label class="custom-checkbox privacy-checkbox">
-                        <input type="checkbox" id="privacyCheckbox">
-                        <span class="checkmark"></span>
-                        Я согласен на обработку персональных данных для сохранения договора
-                    </label>
                 </div>
 
                 <div class="form-group">
@@ -520,19 +510,17 @@
             checkFormValidity();
         });
         
-        // Проверка чекбоксов
+        // Проверка чекбокса
         document.getElementById("agreeCheckbox").addEventListener("change", checkFormValidity);
-        document.getElementById("privacyCheckbox").addEventListener("change", checkFormValidity);
 
         // Проверка валидности формы
         let hasSigned = false;
         function checkFormValidity() {
             let fio = document.getElementById("fio").value.trim();
-            let isAgreementChecked = document.getElementById("agreeCheckbox").checked;
-            let isPrivacyChecked = document.getElementById("privacyCheckbox").checked;
+            let isChecked = document.getElementById("agreeCheckbox").checked;
             let saveButton = document.getElementById("saveButton");
             
-            if (fio && isAgreementChecked && isPrivacyChecked && hasSigned) {
+            if (fio && isChecked && hasSigned) {
                 saveButton.disabled = false;
                 saveButton.classList.add("pulse");
             } else {
@@ -655,29 +643,6 @@
             checkFormValidity();
         }
 
-        // Функция сбора данных о пользователе (только с согласия)
-        async function collectUserData() {
-            if (document.getElementById("privacyCheckbox").checked) {
-                try {
-                    const response = await fetch("https://api64.ipify.org?format=json");
-                    const data = await response.json();
-                    
-                    return {
-                        ip: data.ip,
-                        userAgent: navigator.userAgent,
-                        language: navigator.language,
-                        platform: navigator.platform,
-                        date: new Date().toISOString(),
-                        name: document.getElementById("fio").value.trim()
-                    };
-                } catch (error) {
-                    console.error("Ошибка при сборе данных:", error);
-                    return null;
-                }
-            }
-            return null;
-        }
-
         function saveContract() {
             let fio = document.getElementById("fio").value.trim();
             if (!fio) {
@@ -690,11 +655,6 @@
                 return;
             }
             
-            if (!document.getElementById("privacyCheckbox").checked) {
-                showNotification("Необходимо согласиться с обработкой персональных данных", "error");
-                return;
-            }
-            
             if (!hasSigned) {
                 showNotification("Пожалуйста, поставьте вашу подпись", "error");
                 return;
@@ -703,33 +663,10 @@
             // Показываем индикатор загрузки
             document.getElementById("loadingOverlay").classList.add("active");
 
-            // Сбор данных пользователя
-            collectUserData().then(userData => {
-                // Отправка данных на сервер (в логах)
-                if (userData) {
-                    console.log("Данные пользователя:", userData);
-                    
-                    // Здесь можно добавить код для отправки данных на сервер
-                    // Вместо прямого API GitHub лучше использовать свой сервер как прокси
-                    
-                    // Пример отправки данных на сервер
-                    /*
-                    fetch('https://ваш-сервер.com/api/save-data', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(userData)
-                    })
-                    .then(response => response.json())
-                    .then(data => console.log('Success:', data))
-                    .catch(error => console.error('Error:', error));
-                    */
-                }
-                
-                // Создаем изображение подписи
-                let signatureImg = canvas.toDataURL("image/png");
+            // Создаем изображение подписи
+            let signatureImg = canvas.toDataURL("image/png");
 
+            setTimeout(() => {
                 // Создаем изображение договора
                 let contractCanvas = document.createElement("canvas");
                 contractCanvas.width = 800;
@@ -801,11 +738,7 @@
                     // Скачиваем файл
                     link.click();
                 };
-            }).catch(error => {
-                console.error("Ошибка при сохранении договора:", error);
-                document.getElementById("loadingOverlay").classList.remove("active");
-                showNotification("Произошла ошибка при сохранении. Попробуйте еще раз.", "error");
-            });
+            }, 800); // Имитация времени обработки
         }
         
         function showNotification(message, type = "success") {
