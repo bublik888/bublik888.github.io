@@ -1,93 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Привет из Telegram WebApp</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script> <!-- Подключаем Telegram WebApp SDK -->
+  <title>WebApp</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #202020; color: white;">
-
-  <div style="text-align: center;">
-    <h1>Привет из Telegram WebApp!</h1>
-    <p>Нажми кнопку, чтобы получить сообщение от бота!</p>
-    <button id="sendMessageBtn" style="background-color: #0088cc; padding: 10px 20px; border-radius: 5px; color: white; border: none;">Отправить приветственное сообщение</button>
-  </div>
+<body style="background:#1e1e1e;color:white;display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column">
+  <h1>WebApp</h1>
+  <button onclick="sendHello()" style="padding:1em 2em;font-size:16px;border:none;border-radius:8px;background:#4CAF50;color:white;">
+    Привет
+  </button>
 
   <script>
     const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    // Получаем chat_id и другие данные пользователя
-    tg.ready();
-
-    // Обработчик клика по кнопке
-    document.getElementById("sendMessageBtn").addEventListener("click", function() {
-      const userId = tg.initDataUnsafe.user.id; // Получаем ID пользователя
-      const firstName = tg.initDataUnsafe.user.first_name; // Получаем имя пользователя
-
-      // Отправляем запрос на сервер с данными
-      fetch('/send_message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+    function sendHello() {
+      fetch("https://ВАШ_ДОМЕН/send_message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: userId,
-          first_name: firstName
+          user_id: tg.initDataUnsafe.user.id,
+          first_name: tg.initDataUnsafe.user.first_name
         })
       })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.message);  // Показать результат
-      })
-      .catch(error => console.error('Ошибка:', error));
-    });
+      .then(r => r.json())
+      .then(data => console.log(data))
+      .catch(e => console.error("Ошибка:", e));
+    }
   </script>
 </body>
 </html> <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Привет из Telegram WebApp</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script> <!-- Подключаем Telegram WebApp SDK -->
+  <title>WebApp</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #202020; color: white;">
-
-  <div style="text-align: center;">
-    <h1>Привет из Telegram WebApp!</h1>
-    <p>Нажми кнопку, чтобы получить сообщение от бота!</p>
-    <button id="sendMessageBtn" style="background-color: #0088cc; padding: 10px 20px; border-radius: 5px; color: white; border: none;">Отправить приветственное сообщение</button>
-  </div>
+<body style="background:#1e1e1e;color:white;display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column">
+  <h1>WebApp</h1>
+  <button onclick="sendHello()" style="padding:1em 2em;font-size:16px;border:none;border-radius:8px;background:#4CAF50;color:white;">
+    Привет
+  </button>
 
   <script>
     const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    // Получаем chat_id и другие данные пользователя
-    tg.ready();
-
-    // Обработчик клика по кнопке
-    document.getElementById("sendMessageBtn").addEventListener("click", function() {
-      const userId = tg.initDataUnsafe.user.id; // Получаем ID пользователя
-      const firstName = tg.initDataUnsafe.user.first_name; // Получаем имя пользователя
-
-      // Отправляем запрос на сервер с данными
-      fetch('/send_message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+    function sendHello() {
+      fetch("https://ВАШ_ДОМЕН/send_message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: userId,
-          first_name: firstName
+          user_id: tg.initDataUnsafe.user.id,
+          first_name: tg.initDataUnsafe.user.first_name
         })
       })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.message);  // Показать результат
-      })
-      .catch(error => console.error('Ошибка:', error));
-    });
+      .then(r => r.json())
+      .then(data => console.log(data))
+      .catch(e => console.error("Ошибка:", e));
+    }
   </script>
 </body>
 </html>
