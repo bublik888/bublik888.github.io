@@ -3,81 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Открой свой кейс</title>
+    <title>Random Emoji Sender</title>
     <style>
-        .case-button {
-            display: inline-block;
-            padding: 20px 40px;
-            font-size: 24px;
-            background-color: #008CBA;
-            color: white;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
         }
-        .case-button:hover {
-            background-color: #005f73;
+        .container {
+            text-align: center;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005f8a;
+        }
+        #emoji-display {
+            font-size: 50px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Открой свой кейс</h1>
-    <button class="case-button" onclick="openCase()">Открыть кейс</button>
+    <div class="container">
+        <h1>Получи эмодзи!</h1>
+        <div id="emoji-display">😀</div>
+        <button onclick="sendRandomEmoji()">Крутануть!</button>
+    </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Инициализируем Telegram Web App
-        Telegram.WebApp.init();
+        // Массив эмодзи
+        const emojis = ['😀', '😂', '😍', '😎', '🤓', '😺', '🚀', '🌟', '🍎', '🍕'];
+        let serverUrl = null;
 
-        // Функция для получения данных пользователя
-        function getUserData() {
-            return Telegram.WebApp.initDataUnsafe;
+        // Функция для получения случайного эмодзи
+        function getRandomEmoji() {
+            return emojis[Math.floor(Math.random() * emojis.length)];
         }
 
-        // Выполним GET-запрос для получения URL от сервера
-        function fetchNgrokLink() {
-            return fetch(`https://abc123.ngrok.io/get_ngrok_link`, {
-                method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => data.link);
+        // Получаем ngrok URL с сервера
+        async function fetchServerUrl() {
+            try {
+                const response = await fetch('/get-ngrok-url');
+                const data = await response.json();
+                if (response.ok) {
+                    serverUrl = data.url;
+                    console.log('Получен ngrok URL:', serverUrl);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка получения ngrok URL:', error);
+                alert('Не удалось подключиться к серверу');
+            }
         }
 
-        // Функция для открытия кейса
-        function openCase() {
-            // Получаем user_id через Telegram Web App SDK
-            const userData = getUserData();
-            const user_id = userData.user.id;  // Получаем user_id
+        // Функция отправки эмодзи
+        async function sendRandomEmoji() {
+            if (!serverUrl) {
+                await fetchServerUrl();
+                if (!serverUrl) return;
+            }
 
-            fetchNgrokLink().then((url) => {
-                const emojis = ["💀", "😎", "🎮", "🐱", "🚀", "🔥", "🍀", "⚡", "💥"];  // Массив эмодзи
-                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-                console.log(`Выпало эмодзи: ${randomEmoji}`);
+            const emoji = getRandomEmoji();
+            document.getElementById('emoji-display').textContent = emoji;
 
-                // Отправим POST-запрос с эмодзи и user_id
-                fetch(url + '/send_emoji', {
+            // Получаем user_id из Telegram Web App
+            let userId;
+            try {
+                userId = window.Telegram.WebApp.initDataUnsafe.user?.id;
+                if (!userId) {
+                    throw new Error('User ID не найден');
+                }
+            } catch (error) {
+                console.error('Ошибка получения user_id:', error);
+                alert('Пожалуйста, откройте приложение через Telegram');
+                return;
+            }
+
+            // Отправляем POST-запрос на сервер
+            try {
+                const response = await fetch(`${serverUrl}/send-emoji`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        user_id: user_id,  // Отправляем user_id
-                        emoji: randomEmoji
+                        user_id: userId,
+                        emoji: emoji
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(`Выпало эмодзи: ${randomEmoji}`);
-                })
-                .catch(error => {
-                    console.error("Ошибка при отправке POST запроса:", error);
                 });
-            })
-            .catch(error => {
-                console.error("Ошибка при получении ngrok URL:", error);
-            });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Эмодзи добавлено в инвентарь и отправлено!');
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка запроса:', error);
+                alert('Не удалось отправить эмодзи');
+            }
         }
+
+        // Инициализация: получаем ngrok URL при загрузке
+        window.onload = fetchServerUrl;
     </script>
 </body>
 </html>
