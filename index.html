@@ -1,69 +1,7 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Открой свой кейс</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-        #result {
-            margin-top: 20px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <h1>Открой свой кейс</h1>
-    <button id="open-case">Открыть кейс</button>
-    
-    <p id="result"></p>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.ready();
 
-    <script>
-        // Получение Telegram ID из параметров URL (если это WebApp в Telegram)
-        const params = new URLSearchParams(window.location.search);
-        const telegramUserId = params.get('user_id');  // Telegram ID передается через URL
-
-        if (telegramUserId) {
-            document.getElementById('result').innerText = `Ваш Telegram ID: ${telegramUserId}`;
-        } else {
-            document.getElementById('result').innerText = 'Не удалось получить Telegram ID.';
-        }
-
-        // Открытие кейса (случайная цифра)
-        document.getElementById('open-case').addEventListener('click', function() {
-            if (!telegramUserId) {
-                alert('Не удалось получить Telegram ID.');
-                return;
-            }
-
-            let randomNumber = Math.floor(Math.random() * 10); // Генерация случайной цифры от 0 до 9
-            document.getElementById('result').innerText = `Вам выпала цифра: ${randomNumber}`;
-
-            // Отправка сообщения в Telegram
-            sendTelegramMessage(randomNumber);
-        });
-
-        // Функция для отправки сообщения в Telegram
-        function sendTelegramMessage(number) {
-            let token = "8042526469:AAF9iztud0ysOHODS2pbExEP4emXsjObjPM";  // Токен Telegram-бота
-            let message = `Вам выпала цифра: ${number}`;
-            let url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${telegramUserId}&text=${message}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => console.log("Сообщение отправлено", data))
-                .catch(error => console.error("Ошибка отправки сообщения", error));
-        }
-    </script>
-</body>
-</html>
+  console.log(tg.initDataUnsafe.user); // Информация о юзере
+</script>
